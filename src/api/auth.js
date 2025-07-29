@@ -7,7 +7,7 @@ import axios from 'axios';
 
 const instance = axios.create({
   baseURL: "/api", // 🔥 Use relative path because Vite will proxy this
-  withCredentials: true,
+  axios.defaults.withCredentials = true;
 });
 
 
