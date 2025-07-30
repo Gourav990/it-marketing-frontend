@@ -56,12 +56,26 @@ useEffect(() => {
 }, [location.pathname]); // 👈 Runs again on route change
 
 
-  const handleLogout = async () => {
-    await axios.post(`${BACKEND_URL}/api/logout`, {}, { withCredentials: true });
-    setAvatar(null);
+ const handleLogout = async () => {
+  try {
+    await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/logout`, {}, {
+      withCredentials: true,
+    });
+
+    // Clear all auth state
+    setIsLoggedIn(false);
+    setUserName("");
+    setUserEmail("");
+    setAvatar(null); // if using context
+
+    // Navigate cleanly
     navigate("/");
-    window.location.reload();
-  };
+   // window.location.reload(); // optional
+  } catch (err) {
+    console.error("Logout failed", err);
+  }
+};
+
 
   const getInitials = (name) =>
     name
