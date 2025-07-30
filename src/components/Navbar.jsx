@@ -57,24 +57,11 @@ useEffect(() => {
 
 
  const handleLogout = async () => {
-  try {
-    await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/logout`, {}, {
-      withCredentials: true,
-    });
-
-    // Clear all auth state
-    setIsLoggedIn(false);
-    setUserName("");
-    setUserEmail("");
-    setAvatar(null); // if using context
-
-    // Navigate cleanly
+    await axios.post(`${BACKEND_URL}/api/logout`, {}, { withCredentials: true });
+    setAvatar(null);
     navigate("/");
-   // window.location.reload(); // optional
-  } catch (err) {
-    console.error("Logout failed", err);
-  }
-};
+    window.location.reload();
+  };
 
 
   const getInitials = (name) =>
