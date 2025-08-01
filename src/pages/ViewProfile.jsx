@@ -12,7 +12,7 @@ export default function ViewProfile() {
   const { avatar, setAvatar } = useUser();
 
   useEffect(() => {
-    console.log("📡 Calling /api/me...");
+   // console.log("📡 Calling /api/me...");
 
     axios
       .get(`${BACKEND_URL}/api/me`, { withCredentials: true })
@@ -21,7 +21,7 @@ export default function ViewProfile() {
         setUser(userData);
         setLoading(false);
 
-        console.log("✅ User fetched:", userData);
+        //console.log("✅ User fetched:", userData);
 
         const savedAvatar = localStorage.getItem(`avatar-${userData._id}`);
         setAvatar(savedAvatar || null);
