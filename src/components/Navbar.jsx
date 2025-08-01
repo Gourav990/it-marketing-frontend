@@ -52,19 +52,24 @@ useEffect(() => {
 }, [location.pathname]);
 
 
- const handleLogout = async () => {
+const handleLogout = async () => {
   try {
     await axios.post(`${BACKEND_URL}/api/logout`, {}, { withCredentials: true });
+
     setAvatar(null);
-    localStorage.removeItem(`avatar-${userId}`);
+    setUserName("");
+    setUserEmail("");
     setIsLoggedIn(false);
     setIsAdmin(false);
+    localStorage.clear();
+
     navigate("/");
-    window.location.reload(); // optional force clear UI
+    window.location.reload(); // force refresh to clear state/UI
   } catch (err) {
     console.error("Logout failed:", err);
   }
 };
+
 
 
 
