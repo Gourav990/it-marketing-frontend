@@ -7,27 +7,33 @@ export default function ViewProfile() {
   const [user, setUser] = useState(null);
 const { avatar, setAvatar } = useUser();
 
-  // Fetch user and their avatar from localStorage
- 
-  useEffect(() => {
-    axios
-      .get(`${BACKEND_URL}/api/me`, { withCredentials: true })
-      .then((res) => {
-        const userData = res.data.user;
-        setUser(userData);
+const [user, setUser] = useState(undefined); // undefined: loading, null: error, object: success
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState(null);
 
-        const savedAvatar = localStorage.getItem(`avatar-${userData._id}`);
-        if (savedAvatar) {
-          setAvatar(savedAvatar);
-        } else {
-          setAvatar(null);
-        }
-      })
-      .catch((err) => {
-        console.error("Error fetching user:", err);
-        setUser(null);
-      });
-  }, []);
+useEffect(() => {
+  axios
+    .get(`${BACKEND_URL}/api/me`, { withCredentials: true })
+    .then((res) => {
+      const userData = res.data.user;
+      setUser(userData);
+      setLoading(false);
+
+      const savedAvatar = localStorage.getItem(`avatar-${userData._id}`);
+      if (savedAvatar) {
+        setAvatar(savedAvatar);
+      } else {
+        setAvatar(null);
+      }
+    })
+    .catch((err) => {
+      console.error("❌ Error fetching user:", err);
+      setError("Unable to load user. Please login again.");
+      setUser(null);
+      setLoading(false);
+    });
+}, []);
+
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -57,21 +63,22 @@ const { avatar, setAvatar } = useUser();
     localStorage.removeItem(`avatar-${user._id}`);
   };
 
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center min-h-screen text-base text-gray-600 animate-pulse bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200">
-        Loading profile...
-      </div>
-    );
-  }
+if (loading) {
+  return (
+    <div className="flex justify-center items-center min-h-screen text-base text-gray-600 animate-pulse bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200">
+      Loading profile...
+    </div>
+  );
+}
 
-    if (user === null) {
-    return (
-      <div className="flex justify-center items-center min-h-screen text-base text-red-600 bg-red-50">
-        ❌ Unable to load profile. Please login again.
-      </div>
-    );
-  }
+if (error || user === null) {
+  return (
+    <div className="flex justify-center items-center min-h-screen text-base text-red-600 bg-red-50">
+      ❌ {error || "Unable to load profile"}
+    </div>
+  );
+}
+
 
   const initials = user.name
     ?.split(" ")
