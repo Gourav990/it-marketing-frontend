@@ -17,19 +17,23 @@ export default function Settings() {
   const [oldPassword, setOldPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    axios.get("/api/me", { withCredentials: true })
-      .then((res) => {
-        const user = res.data.user;
-        setUserId(user._id);
-        setName(user.name);
-        setEmail(user.email);
-        setCompany(user.company || "");
-        setInitialName(user.name);
-        setInitialCompany(user.company || "");
-      })
-      .catch(() => toast.error("Failed to load user"));
-  }, []);
+ useEffect(() => {
+  axios.get("/api/me", { withCredentials: true })
+    .then((res) => {
+      const user = res.data.user;
+      setUserId(user._id);
+      setName(user.name);
+      setEmail(user.email);
+      setCompany(user.company || "");
+      setInitialName(user.name);
+      setInitialCompany(user.company || "");
+    })
+    .catch((err) => {
+      console.error("⚠️ Failed to load user in Settings:", err);
+      toast.error("Failed to load user");
+    });
+}, []);
+
 
   const hasChanges = () =>
     name !== initialName ||
