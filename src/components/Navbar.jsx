@@ -44,24 +44,28 @@ useEffect(() => {
       const savedAvatar = localStorage.getItem(`avatar-${user._id}`);
       if (savedAvatar) setAvatar(savedAvatar);
     })
-    .catch((err) => {
-      if (err.response?.status === 401) {
-        setIsLoggedIn(false);
-        setIsAdmin(false);
-        setAvatar(null); // ✅ clear avatar context
-      } else {
-        console.error("Failed to fetch user", err);
-      }
+     .catch(() => {
+      setIsLoggedIn(false);
+      setIsAdmin(false);
+      setAvatar(null);
     });
-}, [location.pathname]); // 👈 Runs again on route change
+}, [location.pathname]);
 
 
  const handleLogout = async () => {
+  try {
     await axios.post(`${BACKEND_URL}/api/logout`, {}, { withCredentials: true });
     setAvatar(null);
+    localStorage.removeItem(`avatar-${userId}`);
+    setIsLoggedIn(false);
+    setIsAdmin(false);
     navigate("/");
-    window.location.reload();
-  };
+    window.location.reload(); // optional force clear UI
+  } catch (err) {
+    console.error("Logout failed:", err);
+  }
+};
+
 
 
   const getInitials = (name) =>
