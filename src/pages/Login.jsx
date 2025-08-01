@@ -52,7 +52,7 @@ export default function Login() {
   const onSubmit = async (data) => {
   try {
     const response = await axios.post(
-      "/login",
+      "/api/login",
       {
         email: data.email,
         password: data.password,
