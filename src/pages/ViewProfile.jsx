@@ -3,37 +3,36 @@ import axios from "axios";
 import { Mail, UserCircle, Building2 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:7000";
+
 export default function ViewProfile() {
-  const [user, setUser] = useState(null);
-const { avatar, setAvatar } = useUser();
+  const [user, setUser] = useState(undefined); // undefined = loading
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { avatar, setAvatar } = useUser();
 
-const [user, setUser] = useState(undefined); // undefined: loading, null: error, object: success
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState(null);
+  useEffect(() => {
+    console.log("📡 Calling /api/me...");
 
-useEffect(() => {
-  axios
-    .get(`${BACKEND_URL}/api/me`, { withCredentials: true })
-    .then((res) => {
-      const userData = res.data.user;
-      setUser(userData);
-      setLoading(false);
+    axios
+      .get(`${BACKEND_URL}/api/me`, { withCredentials: true })
+      .then((res) => {
+        const userData = res.data.user;
+        setUser(userData);
+        setLoading(false);
 
-      const savedAvatar = localStorage.getItem(`avatar-${userData._id}`);
-      if (savedAvatar) {
-        setAvatar(savedAvatar);
-      } else {
-        setAvatar(null);
-      }
-    })
-    .catch((err) => {
-      console.error("❌ Error fetching user:", err);
-      setError("Unable to load user. Please login again.");
-      setUser(null);
-      setLoading(false);
-    });
-}, []);
+        console.log("✅ User fetched:", userData);
 
+        const savedAvatar = localStorage.getItem(`avatar-${userData._id}`);
+        setAvatar(savedAvatar || null);
+      })
+      .catch((err) => {
+        console.error("❌ Error fetching user:", err);
+        setError("Unable to load user. Please login again.");
+        setUser(null);
+        setLoading(false);
+      });
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -63,22 +62,21 @@ useEffect(() => {
     localStorage.removeItem(`avatar-${user._id}`);
   };
 
-if (loading) {
-  return (
-    <div className="flex justify-center items-center min-h-screen text-base text-gray-600 animate-pulse bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200">
-      Loading profile...
-    </div>
-  );
-}
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-base text-gray-600 animate-pulse bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200">
+        Loading profile...
+      </div>
+    );
+  }
 
-if (error || user === null) {
-  return (
-    <div className="flex justify-center items-center min-h-screen text-base text-red-600 bg-red-50">
-      ❌ {error || "Unable to load profile"}
-    </div>
-  );
-}
-
+  if (error || user === null) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-base text-red-600 bg-red-50">
+        ❌ {error || "Unable to load profile"}
+      </div>
+    );
+  }
 
   const initials = user.name
     ?.split(" ")
@@ -95,7 +93,6 @@ if (error || user === null) {
 
       <main className="relative z-10 flex-grow flex items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
         <div className="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-purple-200 dark:border-gray-700 p-6 sm:p-10 flex flex-col sm:flex-row items-center gap-6 sm:gap-10 transition-all">
-
           {/* Avatar Section */}
           <div className="relative">
             <label className="cursor-pointer group block">
@@ -124,7 +121,6 @@ if (error || user === null) {
               </span>
             </label>
 
-            {/* Show remove only if avatar exists */}
             {avatar && (
               <button
                 type="button"
