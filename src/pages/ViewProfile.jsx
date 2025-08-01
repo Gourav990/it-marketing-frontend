@@ -8,9 +8,10 @@ export default function ViewProfile() {
 const { avatar, setAvatar } = useUser();
 
   // Fetch user and their avatar from localStorage
+ 
   useEffect(() => {
     axios
-      .get("/api/me", { withCredentials: true })
+      .get(`${BACKEND_URL}/api/me`, { withCredentials: true })
       .then((res) => {
         const userData = res.data.user;
         setUser(userData);
@@ -22,7 +23,10 @@ const { avatar, setAvatar } = useUser();
           setAvatar(null);
         }
       })
-      .catch(() => setUser(null));
+      .catch((err) => {
+        console.error("Error fetching user:", err);
+        setUser(null);
+      });
   }, []);
 
   const handleImageChange = (e) => {
@@ -57,6 +61,14 @@ const { avatar, setAvatar } = useUser();
     return (
       <div className="flex justify-center items-center min-h-screen text-base text-gray-600 animate-pulse bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200">
         Loading profile...
+      </div>
+    );
+  }
+
+    if (user === null) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-base text-red-600 bg-red-50">
+        ❌ Unable to load profile. Please login again.
       </div>
     );
   }
