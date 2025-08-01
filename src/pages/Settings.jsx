@@ -17,23 +17,24 @@ export default function Settings() {
   const [oldPassword, setOldPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
- useEffect(() => {
-  axios.get("/api/me", { withCredentials: true })
-    .then((res) => {
-      const user = res.data.user;
-      setUserId(user._id);
-      setName(user.name);
-      setEmail(user.email);
-      setCompany(user.company || "");
-      setInitialName(user.name);
-      setInitialCompany(user.company || "");
-    })
-    .catch((err) => {
-      console.error("⚠️ Failed to load user in Settings:", err);
-      toast.error("Failed to load user");
-    });
-}, []);
+  useEffect(() => {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+    axios.get(`${BACKEND_URL}/api/me`, { withCredentials: true })
+      .then((res) => {
+        const user = res.data.user;
+        setUserId(user._id);
+        setName(user.name);
+        setEmail(user.email);
+        setCompany(user.company || "");
+        setInitialName(user.name);
+        setInitialCompany(user.company || "");
+      })
+      .catch((err) => {
+        console.error("⚠️ Failed to load user in Settings:", err);
+        toast.error("Failed to load user");
+      });
+  }, []);
 
   const hasChanges = () =>
     name !== initialName ||
@@ -51,8 +52,10 @@ export default function Settings() {
 
     setLoading(true);
     try {
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
       await axios.put(
-        `/api/users/${userId}`,
+        `${BACKEND_URL}/api/users/${userId}`,
         {
           name,
           company,
@@ -63,10 +66,10 @@ export default function Settings() {
       );
 
       toast.success("Profile updated successfully");
-      // 👇 Navigate instead of reload, so toast shows
       setTimeout(() => navigate("/profile"), 1000);
-      
-    } catch {
+
+    } catch (err) {
+      console.error("❌ Failed to update profile:", err);
       toast.error("Failed to update profile");
     } finally {
       setLoading(false);
@@ -74,13 +77,16 @@ export default function Settings() {
   };
 
   const handleDelete = async () => {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
     if (!confirm("Are you sure you want to delete your account?")) return;
     try {
-      await axios.delete(`/api/users/${userId}`, { withCredentials: true });
-      await axios.post("/api/logout", {}, { withCredentials: true });
+      await axios.delete(`${BACKEND_URL}/api/users/${userId}`, { withCredentials: true });
+      await axios.post(`${BACKEND_URL}/api/logout`, {}, { withCredentials: true });
       toast.success("Account deleted");
-      window.location.href = "/"; 
-    } catch {
+      window.location.href = "/";
+    } catch (err) {
+      console.error("❌ Failed to delete account:", err);
       toast.error("Failed to delete account");
     }
   };
